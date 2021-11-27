@@ -67,6 +67,7 @@ module Xdrgen
 
         out.puts "__all__ = ['#{enum_name}']"
 
+        out.puts "@type_checked"
         out.puts "class #{enum_name}(IntEnum):"
         out.indent(2) do
           render_source_comment(out, enum)
@@ -103,6 +104,7 @@ module Xdrgen
 
         out.puts "__all__ = ['#{typedef_name}']"
 
+        out.puts "@type_checked"
         out.puts "class #{typedef_name}:"
         out.indent(2) do
           render_source_comment(out, typedef)
@@ -161,6 +163,7 @@ module Xdrgen
 
         out.puts "__all__ = ['#{union_name}']"
 
+        out.puts "@type_checked"
         out.puts "class #{union_name}:"
         out.indent(2) do
           render_source_comment(out, union)
@@ -286,6 +289,7 @@ module Xdrgen
 
         out.puts "__all__ = ['#{struct_name}']"
 
+        out.puts "@type_checked"
         out.puts "class #{struct_name}:"
         out.indent(2) do
           render_source_comment(out, struct)
@@ -442,6 +446,7 @@ module Xdrgen
           from xdrlib import Packer, Unpacker
           from .base import Integer, UnsignedInteger, Float, Double, Hyper, UnsignedHyper, Boolean, String, Opaque
           from .constants import *
+          from ..type_checked import type_checked
         EOS
         out.break
       end
@@ -493,10 +498,12 @@ module Xdrgen
 
         out.puts <<-EOS.strip_heredoc
           from xdrlib import Packer, Unpacker
+          from ..type_checked import type_checked
 
           __all__ = ["Integer", "UnsignedInteger", "Float", "Double", "Hyper", "UnsignedHyper", "Boolean", "String", "Opaque"]
 
 
+          @type_checked
           class Integer:
               def __init__(self, value: int) -> None:
                   self.value = value
@@ -516,7 +523,8 @@ module Xdrgen
               def __str__(self):
                   return f"<Integer [value={self.value}]>"
           
-          
+
+          @type_checked
           class UnsignedInteger:
               def __init__(self, value: int) -> None:
                   self.value = value
@@ -536,7 +544,8 @@ module Xdrgen
               def __str__(self):
                   return f"<UnsignedInteger [value={self.value}]>"
           
-          
+
+          @type_checked
           class Float:
               def __init__(self, value: float) -> None:
                   self.value = value
@@ -556,7 +565,8 @@ module Xdrgen
               def __str__(self):
                   return f"<Float [value={self.value}]>"
           
-          
+
+          @type_checked
           class Double:
               def __init__(self, value: float) -> None:
                   self.value = value
@@ -576,7 +586,8 @@ module Xdrgen
               def __str__(self):
                   return f"<Double [value={self.value}]>"
           
-          
+
+          @type_checked
           class Hyper:
               def __init__(self, value: int) -> None:
                   self.value = value
@@ -596,7 +607,8 @@ module Xdrgen
               def __str__(self):
                   return f"<Hyper [value={self.value}]>"
           
-          
+
+          @type_checked
           class UnsignedHyper:
               def __init__(self, value: int) -> None:
                   self.value = value
@@ -616,7 +628,8 @@ module Xdrgen
               def __str__(self):
                   return f"<UnsignedHyper [value={self.value}]>"
           
-          
+
+          @type_checked
           class Boolean:
               def __init__(self, value: bool) -> None:
                   self.value = value
@@ -636,7 +649,8 @@ module Xdrgen
               def __str__(self):
                   return f"<Boolean [value={self.value}]>"
           
-          
+
+          @type_checked
           class String:
               def __init__(self, value: bytes, size: int) -> None:
                   if len(value) > size:
@@ -664,7 +678,8 @@ module Xdrgen
               def __str__(self):
                   return f"<String [value={self.value}, size={self.size}]>"
           
-          
+
+          @type_checked
           class Opaque:
               def __init__(self, value: bytes, size: int, fixed: bool) -> None:
                   if fixed:
