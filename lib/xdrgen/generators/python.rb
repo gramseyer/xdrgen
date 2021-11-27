@@ -64,6 +64,7 @@ module Xdrgen
         file_name = "#{enum_name.underscore}.py"
         out = @output.open(file_name)
         render_common_import out
+        out.puts "from ..__version__ import __issues__"
 
         out.puts "__all__ = ['#{enum_name}']"
 
@@ -87,6 +88,14 @@ module Xdrgen
           HEREDOC
 
           render_xdr_utils(out, enum_name)
+
+          out.puts <<~HEREDOC
+            @classmethod
+            def _missing_(cls, value):
+                raise ValueError(
+                    f"{value} is not a valid {cls.__name__}, please upgrade the SDK or submit an issue here: {__issues__}."
+                )
+          HEREDOC
           out.close
         end
       end
