@@ -143,6 +143,16 @@ module Xdrgen
         end
       end
 
+      # append an _ to a python-reserved keyword, if used as an xdr name
+      def format_keyword(member_name)
+        if["from", "import"].include? member_name #etc
+          return member_name + "_"
+        else
+          return member_name
+        end
+      end
+
+
       def render_union(init_out, union)
         union_name = name union
         init_out.puts "from .#{union_name.underscore} import #{union_name}"
@@ -296,7 +306,8 @@ module Xdrgen
 
           out.indent(2) do
             struct.members.each do |member|
-              out.puts "#{member.name.underscore}: #{type_hint_string member.declaration, struct_name},"
+              member_name = format_keyword(member.name.underscore)
+              out.puts "#{member_name}: #{type_hint_string member.declaration, struct_name},"
             end
           end
           out.puts ") -> None:"
@@ -306,7 +317,8 @@ module Xdrgen
               render_array_length_checker member, out
             end
             struct.members.each do |member|
-              out.puts "self.#{member.name.underscore} = #{member.name.underscore}"
+              member_name = format_keyword(member.name.underscore)
+              out.puts "self.#{member_name} = #{member_name}"
             end
           end
           out.puts "def pack(self, packer: Packer) -> None:"
@@ -325,7 +337,8 @@ module Xdrgen
             out.puts "return cls("
             out.indent(2) do
               struct.members.each do |member|
-                out.puts "#{member.name.underscore}=#{member.name.underscore},"
+                member_name = format_keyword(member.name.underscore)
+                out.puts "#{member_name}=#{member_name},"
               end
             end
             out.puts ")"
@@ -335,7 +348,7 @@ module Xdrgen
 
           attribute_names = []
           struct.members.each do |member|
-            attribute_names.push(member.name.underscore)
+            attribute_names.push(format_keyword(member.name.underscore))
           end
           out.puts <<~HEREDOC
             def __eq__(self, other: object):
@@ -401,7 +414,8 @@ module Xdrgen
                     raise ValueError("#{member.name.underscore} should not be None.")
               HEREDOC
             end
-            out.puts "#{encode_type member.declaration, "#{member.name.underscore}"}"
+            member_name = format_keyword(member.name.underscore)
+            out.puts "#{encode_type member.declaration, "#{member_name}"}"
           end
         end
       end
@@ -420,12 +434,13 @@ module Xdrgen
                 #{member.name.underscore}.append(#{decode_type(member.declaration)})
           EOS
         else
+          member_name = format_keyword(member.name.underscore)
           if member.type.sub_type == :optional
-            out.puts "#{member.name.underscore} = #{decode_type member.declaration} if unpacker.unpack_uint() else None"
+            out.puts "#{member_name} = #{decode_type member.declaration} if unpacker.unpack_uint() else None"
           else
-            out.puts "#{member.name.underscore} = #{decode_type member.declaration}"
+            out.puts "#{member_name} = #{decode_type member.declaration}"
             # out.puts <<~HEREDOC
-            #   if #{member.name.underscore} is None:
+            #   if #{member_name} is None:
             #       raise ValueError("#{member.name.underscore} should not be None.")
             # HEREDOC
           end
